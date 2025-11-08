@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Казино</title>
+    <link rel="stylesheet" href="p1.css">
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="blockHi">
+                <h1 class="Hi"><strong>Приветствуем в нашем казино! 🤩</strong></h1>
+                <p class="Hi2">Крутите слоты и выигрывайте крупные выигрыши 💰</p>
+                <button id="but" class="butbonus"><b>Забрать Бонус 🎁</b></button>
+            </div>
+            <div class="Balanceblock">
+                <h1 class="balance">Баланс:</h1>
+                <span id="balanceValue">$0.00</span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="slots-container">
+            <div class="slots-game">
+                <h2>🎰 Игровые автоматы</h2>
+                
+                <div class="slots-display">
+                    <div class="reel" id="reel1">💲</div>
+                    <div class="reel" id="reel2">💲</div>
+                    <div class="reel" id="reel3">💲</div>
+                </div>
+                
+                <div class="slots-info">
+                    <div class="bet-info">
+                        <span>Ставка: $0.30</span>
+                    </div>
+                    <div class="win-info">
+                        <span id="winAmount">Выигрыш: $0.00</span>
+                    </div>
+                </div>
+                <div class="bet-selector">
+                    <h3>Выберите ставку:</h3>
+                    <div class="bet-buttons">
+                        <button class="bet-btn active" data-bet="0.10">$0.1</button>
+                        <button class="bet-btn" data-bet="0.30">$0.3</button>
+                        <button class="bet-btn" data-bet="0.50">$0.5</button>
+                        <button class="bet-btn" data-bet="1.00">$1.0</button>
+                        <button class="bet-btn" data-bet="3.00">$3.0</button>
+                        <button class="bet-btn" data-bet="7.00">$7.0</button>
+                    </div>
+                </div>
+                <button id="spinButton" class="spin-btn">🔁 Крутить</button>
+                
+                <div class="payouts">
+                    <h3>Выплаты:</h3>
+                    <div class="payout-list">
+                        <div class="payout-item">7️⃣7️⃣7️⃣ - x50</div>
+                        <div class="payout-item">🍓🍓🍓 - x30</div>
+                        <div class="payout-item">🍇🍇🍇 - x20</div>
+                        <div class="payout-item">❤️❤️❤️ - x12</div>
+                        <div class="payout-item">🍋🍋🍋 - x8</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="pages.js"></script>
+</body>
+</html>

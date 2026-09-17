@@ -173,12 +173,14 @@ class SlotsGame {
         this.betAmount = 0.10;
         this.symbols = ['7️⃣', '🍓', '🍇', '💰', '🍋'];
         this.multipliers = {
-            '7️⃣': 50,
-            '🍓': 30,
-            '🍇': 20,
-            '💰': 12,
-            '🍋': 8
+            '7️⃣': 40,
+            '🍓': 20,
+            '🍇': 10,
+            '💰': 7,
+            '🍋': 3
         };
+        // Множитель за 4 одинаковых (умножается на базовый)
+        this.fourMatchBonus = 3;
         this.isSpinning = false;
         
         this.init();
@@ -198,7 +200,6 @@ class SlotsGame {
             });
         }
         
-        // Обработчики для кнопок ставок
         const betButtons = document.querySelectorAll('.bet-btn');
         betButtons.forEach(button => {
             button.addEventListener('click', (e) => {
@@ -207,7 +208,6 @@ class SlotsGame {
             });
         });
         
-        // Активируем первую кнопку ставки по умолчанию
         if (betButtons.length > 0) {
             this.updateActiveBetButton(betButtons[0]);
         }
@@ -235,86 +235,81 @@ class SlotsGame {
     updatePayoutsDisplay() {
         const payoutItems = document.querySelectorAll('.payout-item');
         const payouts = [
-            { symbol: '7️⃣', multiplier: 50 },
-            { symbol: '🍓', multiplier: 30 },
-            { symbol: '🍇', multiplier: 20 },
-            { symbol: '💰', multiplier: 12 },
-            { symbol: '🍋', multiplier: 8 }
+            { symbol: '7️⃣', multiplier: 40 },
+            { symbol: '🍓', multiplier: 20 },
+            { symbol: '🍇', multiplier: 10 },
+            { symbol: '💰', multiplier: 7 },
+            { symbol: '🍋', multiplier: 3 }
         ];
         
         payouts.forEach((payout, index) => {
-            const winAmount = this.betAmount * payout.multiplier;
+            const win3 = this.betAmount * payout.multiplier;
+            const win4 = win3 * this.fourMatchBonus;
             if (payoutItems[index]) {
                 payoutItems[index].textContent = 
                     payout.symbol.repeat(3) + ' - x' + payout.multiplier + 
-                    ' ($' + winAmount.toFixed(2) + ')';
+                    ' ($' + win3.toFixed(2) + ') / 4 шт: $' + win4.toFixed(2);
             }
         });
     }
     
-spin() {
-    if (this.isSpinning) {
-        console.log('Уже вращается!');
-        return;
-    }
-    
-    console.log('Начало вращения. Ставка:', this.betAmount, 'Баланс:', this.balanceSystem.getBalance());
-    
-    if (!this.balanceSystem.subtractMoney(this.betAmount)) {
-        this.balanceSystem.showMessage('Недостаточно денег! Нужно $' + this.betAmount.toFixed(2));
-        return;
-    }
-    
-    this.isSpinning = true;
-    const spinButton = document.getElementById('spinButton');
-    if (spinButton) {
-        spinButton.disabled = true;
-        spinButton.textContent = 'Вращается...';
-    }
-    
-    this.updateWinDisplay(0);
-    
-    // Анимация вращения
-    this.animateSpin();
-    
-    // Генерируем результат
-    const result = this.generateSpinResult();
-    console.log('Результат вращения:', result);
-    
-    // Отображаем результат после анимации
-    setTimeout(() => {
-        this.displayFinalResult(result);
+    spin() {
+        if (this.isSpinning) {
+            console.log('Уже вращается!');
+            return;
+        }
         
-        // Ждем еще секунду после остановки барабанов перед показом результата
+        console.log('Начало вращения. Ставка:', this.betAmount, 'Баланс:', this.balanceSystem.getBalance());
+        
+        if (!this.balanceSystem.subtractMoney(this.betAmount)) {
+            this.balanceSystem.showMessage('Недостаточно денег! Нужно $' + this.betAmount.toFixed(2));
+            return;
+        }
+        
+        this.isSpinning = true;
+        const spinButton = document.getElementById('spinButton');
+        if (spinButton) {
+            spinButton.disabled = true;
+            spinButton.textContent = 'Вращается...';
+        }
+        
+        this.updateWinDisplay(0);
+        
+        this.animateSpin();
+        
+        const result = this.generateSpinResult();
+        console.log('Результат вращения:', result);
+        
         setTimeout(() => {
-            const winAmount = this.calculateWin(result);
-            console.log('Выигрыш:', winAmount);
+            this.displayFinalResult(result);
             
-            if (winAmount > 0) {
-                this.balanceSystem.addMoney(winAmount);
-                this.updateWinDisplay(winAmount);
-                this.balanceSystem.showMessage('Ты выиграл $' + winAmount.toFixed(2) + '!', 'success');
-                this.triggerWinAnimation();
-            } else {
+            setTimeout(() => {
+                const winAmount = this.calculateWin(result);
+                console.log('Выигрыш:', winAmount);
                 
-            }
+                if (winAmount > 0) {
+                    this.balanceSystem.addMoney(winAmount);
+                    this.updateWinDisplay(winAmount);
+                    this.balanceSystem.showMessage('Ты выиграл $' + winAmount.toFixed(2) + '!', 'success');
+                    this.triggerWinAnimation();
+                }
+                
+                this.isSpinning = false;
+                if (spinButton) {
+                    spinButton.disabled = false;
+                    spinButton.textContent = '🔁 Крутить';
+                }
+            }, 1000);
             
-            // Завершаем вращение
-            this.isSpinning = false;
-            if (spinButton) {
-                spinButton.disabled = false;
-                spinButton.textContent = '🔁 Крутить';
-            }
-        }, 1000); // +1 секунда задержки после остановки барабанов
-        
-    }, 2000);
-}
+        }, 2000);
+    }
     
     animateSpin() {
         const reels = [
             document.getElementById('reel1'),
             document.getElementById('reel2'), 
-            document.getElementById('reel3')
+            document.getElementById('reel3'),
+            document.getElementById('reel4')
         ];
         
         reels.forEach((reel, index) => {
@@ -337,23 +332,20 @@ spin() {
     }
     
     generateSpinResult() {
-        const result = [
+        return [
+            this.symbols[Math.floor(Math.random() * this.symbols.length)],
             this.symbols[Math.floor(Math.random() * this.symbols.length)],
             this.symbols[Math.floor(Math.random() * this.symbols.length)],
             this.symbols[Math.floor(Math.random() * this.symbols.length)]
         ];
-        
-        // Для тестирования - раскомментируйте строку ниже для принудительного выигрыша
-        // result = ['7️⃣', '7️⃣', '7️⃣']; // Всегда джекпот
-        
-        return result;
     }
     
     displayFinalResult(result) {
         const reels = [
             document.getElementById('reel1'),
             document.getElementById('reel2'),
-            document.getElementById('reel3')
+            document.getElementById('reel3'),
+            document.getElementById('reel4')
         ];
         
         reels.forEach((reel, index) => {
@@ -369,14 +361,24 @@ spin() {
     calculateWin(result) {
         console.log('Проверка выигрыша для:', result);
         
-        // Проверяем три одинаковых символа
-        if (result[0] === result[1] && result[1] === result[2]) {
-            const symbol = result[0];
-            const multiplier = this.multipliers[symbol];
-            
+        const [a, b, c, d] = result;
+        
+        // 4 одинаковых — самый жирный выигрыш
+        if (a === b && b === c && c === d) {
+            const multiplier = this.multipliers[a];
+            if (multiplier !== undefined) {
+                const winAmount = this.betAmount * multiplier * this.fourMatchBonus;
+                console.log('4 в ряд! Символ:', a, 'Множитель x' + multiplier, 'Бонус x' + this.fourMatchBonus, 'Сумма:', winAmount);
+                return winAmount;
+            }
+        }
+        
+        // 3 одинаковых на первых трёх барабанах
+        if (a === b && b === c) {
+            const multiplier = this.multipliers[a];
             if (multiplier !== undefined) {
                 const winAmount = this.betAmount * multiplier;
-                console.log('Выигрыш! Символ:', symbol, 'Множитель:', multiplier, 'Сумма:', winAmount);
+                console.log('3 в ряд! Символ:', a, 'Множитель:', multiplier, 'Сумма:', winAmount);
                 return winAmount;
             }
         }
@@ -389,7 +391,8 @@ spin() {
         const reels = [
             document.getElementById('reel1'),
             document.getElementById('reel2'),
-            document.getElementById('reel3')
+            document.getElementById('reel3'),
+            document.getElementById('reel4')
         ];
         
         reels.forEach(reel => {
@@ -416,15 +419,3 @@ spin() {
         }
     }
 }
-
-// Initialize everything
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded, initializing game...');
-    
-    // Даем небольшую задержку для полной загрузки DOM
-    setTimeout(() => {
-        window.balanceSystem = new BalanceSystem();
-        window.slotsGame = new SlotsGame(window.balanceSystem);
-        console.log('Game initialized successfully!');
-    }, 100);
-});

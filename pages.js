@@ -1,4 +1,5 @@
 // Balance system
+alert("казик запустился");
 class BalanceSystem {
   constructor() {
     this.balance = 0;
